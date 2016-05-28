@@ -1,15 +1,30 @@
 package pig.testing.runner;
 
+import java.util.ArrayList;
 import java.util.Properties;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.codehaus.jackson.annotate.JsonProperty;
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PigTestDef {
 
 	String id;
 	String file;
 	Properties args = new Properties();
 	Properties expected = new Properties();
+	@JsonProperty("hivecli")
+	ArrayList<String[]> hiveCli = new ArrayList<String[]>();
+	
 
-	public String getId() {
+    public ArrayList<String[]> getHiveCli() {
+        return hiveCli;
+    }
+
+    public void setHiveCli(ArrayList<String[]> hiveCli) {
+        this.hiveCli = hiveCli;
+    }
+
+    public String getId() {
 		return id;
 	}
 
@@ -40,4 +55,5 @@ public class PigTestDef {
 	public void setExpected(Properties expected) {
 		this.expected = expected;
 	}
+	
 }

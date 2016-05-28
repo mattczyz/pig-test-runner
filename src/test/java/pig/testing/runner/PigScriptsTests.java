@@ -16,24 +16,31 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Properties;
 
+import org.apache.hadoop.hive.ql.CommandNeedRetryException;
+import org.apache.hadoop.hive.ql.metadata.HiveException;
 import org.apache.pig.pigunit.PigTest;
 import org.apache.pig.tools.parameters.ParseException;
+import org.apache.thrift.TException;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(Parameterized.class)
 public class PigScriptsTests {
-    @Parameters(name = "id = {0}; path = {1}")
+    @Parameters(name = "id = {0}")
     public static Collection<Object[]> data() throws JsonParseException,
-            JsonMappingException, IOException {
+            JsonMappingException, IOException, HiveException {
         // String pathToXml = System.getProperty("path-to-xml");
         // System.out.println(pathToXml);
+        
         String jsonInput = new String(Files.readAllBytes(Paths
                 .get("pig_test_defs.json")));
 
@@ -45,9 +52,11 @@ public class PigScriptsTests {
         while(testDefs.hasNext()){
             PigTestDef properties = mapper.readValue(testDefs.next(), PigTestDef.class);
 
+ 
+            
             testProperties.add(new Object[] { properties.getId(),
                     properties.getFile(), properties.getArgs(),
-                    properties.getExpected() });
+                    properties.getExpected(), properties.getHiveCli() });
 
         }
 
@@ -58,20 +67,36 @@ public class PigScriptsTests {
     private String file;
     private Properties args;
     private Properties expected;
-
+    private ArrayList<String[]> hiveCli;
+    
     public PigScriptsTests(String id, String file, Properties args,
-            Properties expected) {
+            Properties expected, ArrayList<String[]> hiveCli) {
 
         this.id = id;
         this.file = file;
         this.args = args;
         this.expected = expected;
+        this.hiveCli = hiveCli;
     }
-
+    
     @Test
-    public void test() throws IOException, ParseException, URISyntaxException {
+    public void initialize() {
+        if(System.getProperty("stopAtInit") != null)
+            System.exit(0);
+    }
+    
+    @Test
+    public void test() throws IOException, ParseException, URISyntaxException, HiveException {
+        // exceute hive cli
+        for(String[] hiveCliArgs:hiveCli){
+            HiveExecutor.execHive(hiveCliArgs);
+        }
+        
+        // execute pig
         execPigScript(this.id, this.file, this.args);
 
+        
+        // test with expected
         for (Entry<Object, Object> entry : expected.entrySet()) {
             URI resultPath = new URI(this.args.get(entry.getKey()).toString());
             Iterator<Path> exepectedFiles = Files.list(
