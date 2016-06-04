@@ -35,11 +35,10 @@ public class PigScriptsTests {
     @Parameters(name = "id = {0}")
     public static Collection<Object[]> data() throws JsonParseException,
             JsonMappingException, IOException, HiveException {
-        // String pathToXml = System.getProperty("path-to-xml");
-        // System.out.println(pathToXml);
-        
+        String pigTestDefs = System.getProperty("pigTestDefs");
+
         String jsonInput = new String(Files.readAllBytes(Paths
-                .get("pig_test_defs.json")));
+                .get(pigTestDefs)));
 
         ObjectMapper mapper = new ObjectMapper();
         JsonNode testDefsNode = mapper.readTree(jsonInput);
