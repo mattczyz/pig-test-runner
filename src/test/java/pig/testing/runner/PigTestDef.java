@@ -4,18 +4,33 @@ import java.util.ArrayList;
 import java.util.Properties;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-import org.codehaus.jackson.annotate.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PigTestDef {
 
 	String id;
 	String file;
 	Properties args = new Properties();
-	Properties expected = new Properties();
-	@JsonProperty("hivecli")
+	ArrayList<TestClass> tests = new ArrayList<TestClass>();
 	ArrayList<String[]> hiveCli = new ArrayList<String[]>();
 	
-
+	static class TestClass {
+	    Properties args;
+	    String name;
+        public Properties getArgs() {
+            return args;
+        }
+        public void setArgs(Properties args) {
+            this.args = args;
+        }
+        public String getName() {
+            return name;
+        }
+        public void setName(String name) {
+            this.name = name;
+        }
+        
+	}
+	
     public ArrayList<String[]> getHiveCli() {
         return hiveCli;
     }
@@ -48,12 +63,13 @@ public class PigTestDef {
 		this.args = args;
 	}
 
-	public Properties getExpected() {
-		return expected;
-	}
+    public ArrayList<TestClass> getTests() {
+        return tests;
+    }
 
-	public void setExpected(Properties expected) {
-		this.expected = expected;
-	}
+    public void setTests(ArrayList<TestClass> tests) {
+        this.tests = tests;
+    }
+
 	
 }
