@@ -7,11 +7,11 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PigTestDef {
 
-	String id;
-	String file;
-	Properties args = new Properties();
-	ArrayList<TestClass> tests = new ArrayList<TestClass>();
-	ArrayList<String[]> hiveCli = new ArrayList<String[]>();
+	private String id;
+	private String file;
+	private Properties args = new Properties();
+	private ArrayList<TestClass> tests = new ArrayList<TestClass>();
+	private ArrayList<String[]> hiveCli = new ArrayList<String[]>();
 	
 	static class TestClass {
 	    Properties args;
