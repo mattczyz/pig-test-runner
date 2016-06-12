@@ -1,11 +1,13 @@
 package pig.testing.runner;
 
-import org.apache.hadoop.hive.cli.CliDriver;
-import org.apache.hadoop.hive.conf.HiveConf;
-import org.apache.hadoop.hive.metastore.MetaStoreUtils;
-import org.apache.hadoop.hive.ql.metadata.HiveException;
-import org.apache.hadoop.hive.thrift.HadoopThriftAuthBridge;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.hadoop.hive.cli.CliDriver;
+import org.apache.hadoop.hive.ql.metadata.HiveException;
 
 public class HiveExecutor {
     public static void execHive(String[] hiveCliArgs) throws HiveException  {
@@ -19,20 +21,28 @@ public class HiveExecutor {
             }
             
         } catch (Exception e) {
-            throw new HiveException();
+            throw new HiveException(e);
         }
     }
     
-    // TODO: startMetastore needs completing
-    public static void startMetastore() {
-        HiveConf configuration = new HiveConf();
-        try {
-            MetaStoreUtils.startMetaStore(MetaStoreUtils.findFreePort(), new HadoopThriftAuthBridge(), 
-                    configuration);
-
-        } catch (Throwable e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+    public static String[] getMetastoreConfig() throws HiveException {
+        String currentPath = Paths.get(".").toAbsolutePath().normalize().toString();
+        ArrayList<String> hiveCliArgsMetastore = new ArrayList<String>();
+        hiveCliArgsMetastore.add("--hiveconf");
+        hiveCliArgsMetastore.add("hive.metastore.warehouse.dir=file://"+currentPath+"/tmp/warehouse");
+        
+        hiveCliArgsMetastore.add("--hiveconf");
+        hiveCliArgsMetastore.add("javax.jdo.option.ConnectionURL=jdbc:derby:;databaseName=tmp/metastore_db;create=true");
+        
+        hiveCliArgsMetastore.add("--hiveconf");
+        hiveCliArgsMetastore.add("fs.default.name=file://"+currentPath+"/tmp");
+        //file://${user.dir}/
+        return hiveCliArgsMetastore.toArray(new String[0]);
     }
+    
+    public static void cleanup() throws HiveException, IOException {
+        String currentPath = Paths.get(".").toAbsolutePath().normalize().toString();
+        FileUtils.deleteDirectory(new File(currentPath+"/tmp"));
+    }
+    
 }

@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Properties;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.hadoop.hive.ql.metadata.HiveException;
 import org.apache.pig.pigunit.PigTest;
 import org.apache.pig.tools.parameters.ParseException;
@@ -82,8 +83,14 @@ public class PigScriptsTests {
     @Test
     public void test() throws IOException, ParseException, URISyntaxException, HiveException, ClassNotFoundException, InstantiationException, IllegalAccessException {
         // exceute hive cli
+        HiveExecutor.cleanup();
         for(String[] hiveCliArgs:hiveCli){
-            HiveExecutor.execHive(hiveCliArgs);
+            if(System.getProperty("hive.metastore.uris") == null){
+                String[] metastoreArgs = (String[]) ArrayUtils.addAll(hiveCliArgs, HiveExecutor.getMetastoreConfig());
+                HiveExecutor.execHive(metastoreArgs);
+            } else {
+                HiveExecutor.execHive(hiveCliArgs);
+            }
         }
         
         // execute pig
