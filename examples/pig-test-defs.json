@@ -1,0 +1,48 @@
+[
+{
+    "id": "word-count",
+    "file": "examples/word_count/word_count.pig",
+    "args": 
+    {
+        "input": "examples/word_count/input",
+        "output": "examples/word_count/output"
+    },
+    "tests": [
+        {
+            "args": 
+            {
+                "output":"examples/word_count/output",
+                "expected": "examples/word_count/expected"
+            }
+        }
+    ]
+    
+},
+{
+    "id": "word-count-hive",
+    "file": "examples/word_count_hive/word_count_hive.pig",
+    "args": 
+    {
+        "input_table": "mydb.words",
+        "output": "examples/word_count_hive/output"
+    }    ,
+    "hiveCli": [
+        ["-e", "dfs -rm -r -f examples/word_count_hive/output"],
+        ["-e", "CREATE DATABASE mydb;"],
+        [
+         "-f", "examples/word_count_hive/words.hql",
+         "--hiveconf", "words_path=examples/word_count_hive/input"
+        ]
+    ],
+    "tests": [
+        {
+            "name": "DirContentEqual",
+            "args": 
+            {
+                "output":"examples/word_count_hive/output",
+                "expected": "examples/word_count_hive/expected"
+            }
+        }
+    ]
+}
+]
