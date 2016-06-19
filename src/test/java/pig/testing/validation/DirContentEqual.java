@@ -1,4 +1,4 @@
-package pig.testing.tests;
+package pig.testing.validation;
 
 import static org.junit.Assert.assertEquals;
 
@@ -9,7 +9,7 @@ import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.Properties;
 
-public class DirContentEqual implements TestExecutor {
+public class DirContentEqual implements ResultValidator {
 
     Properties args;
 
@@ -17,7 +17,7 @@ public class DirContentEqual implements TestExecutor {
         this.args = args;
     }
 
-    public void execute() {
+    public void validate() {
         String expectedPath = args.getProperty("expected");
         String outputPath = args.getProperty("output");
 

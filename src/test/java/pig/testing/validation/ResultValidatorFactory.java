@@ -1,23 +1,23 @@
-package pig.testing.tests;
+package pig.testing.validation;
 
 
-public class TestExecutorFactory {
-    public static TestExecutor get(String executorClass) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
-        TestExecutor test = null;
+public class ResultValidatorFactory {
+    public static ResultValidator get(String executorClass) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+        ResultValidator test = null;
         Class<?> testExecutor;
    
         if(executorClass == null)
             executorClass = "DirContentEqual";
         
-        if(isClass("pig.testing.tests." + executorClass)){
-            testExecutor = Class.forName("pig.testing.tests." + executorClass);
+        if(isClass("pig.testing.validation." + executorClass)){
+            testExecutor = Class.forName("pig.testing.validation." + executorClass);
         } else if (isClass(executorClass)){
             testExecutor = Class.forName(executorClass);
         } else {
             throw new ClassNotFoundException(executorClass);
         }
                 
-        test = (TestExecutor) testExecutor.newInstance();
+        test = (ResultValidator) testExecutor.newInstance();
 
         return test;
     }
