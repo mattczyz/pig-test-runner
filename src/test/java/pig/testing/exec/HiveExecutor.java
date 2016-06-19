@@ -1,4 +1,4 @@
-package pig.testing.runner;
+package pig.testing.exec;
 
 import java.io.File;
 import java.io.IOException;

@@ -1,11 +1,11 @@
-package pig.testing.runner;
+package pig.testing.exec;
 
 import java.util.ArrayList;
 import java.util.Properties;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class PigTestDef {
+public class TestDef {
 
 	private String id;
 	private String file;
