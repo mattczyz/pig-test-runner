@@ -6,12 +6,12 @@ The tool helps developers to create Pig scripts with the test first approach. It
 
 To execute tests, internally pig-test-runner uses Pig unit testing framework and JUnit. It can be a part of an automated build process, as well as used within visual tools, e.g. Eclipse JUnit testing, allowing a selective test run. 
 
-It is possible to use external or embedded Hive Metastore to deploy of HQL schema definitions and access HCatalogue from Pig. To support custom output formats, the default test result validator can be overridden by providing a custom implementation.
+It is possible to use external or embedded Hive Metastore to deploy of HQL schema definitions and access HCatalog from Pig. To support custom output formats, the default test result validator can be overridden by providing a custom implementation.
 
 ## Usage
 
 #### Defining tests
-e.g. pig-test-def.json
+e.g. test-def.json
 
 ```
 [{
@@ -91,8 +91,23 @@ Pig-test-runner can be executed from Eclipse using the m2e Maven plugin. (http:/
 - Maven -> Existing Maven Projects
 - Browse to the root of the pig-test-runner directory -> Select pom.xml
 - From Package Explorer expand pig.testing.runner -> Right click RunnerTest.java to open context menu
-- Run As -> Run configurations 
-- Create new JUnit Test and specify VM argument to point to the configuration file e.g. VM argument -DtestDefs=examples/test-defs.json 
+- Run As -> Run configurations -> Create new JUnit Test 
+  - Tests configuration file path, VM argument: -DtestDefs=examples/test-defs.json 
+  - Initialize tests without execution, VM argument: -DstopAtInit
+
+#### Running tests on Windows
+To execute tests on Windows you need the Windows Hadoop binaries, which you can build by following e.g. https://wiki.apache.org/hadoop/Hadoop2OnWindows or download already built version from e.g. https://github.com/karthikj1/Hadoop-2.7.1-Windows-64-binaries.
+
+##### Command line
+```
+set PATH=%PATH%;<hadoop build path>\hadoop-2.7.1\bin
+mvn -DtestDefs=examples\test-defs.json test -Dhadoop.home.dir=<hadoop build path>\hadoop-2.7.1\
+```
+
+##### Eclipse
+- Run As -> Run configurations  
+  - Environment -> New: PATH = \<hadoop build path\>\hadoop-2.7.1\bin
+  - Arguments -> VM argument: -Dhadoop.home.dir=\<hadoop build path\>\hadoop-2.7.1\
 
 #### Pig-test-runner arguments
 *-DtestDefs -* path to the configuration file
