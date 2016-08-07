@@ -6,6 +6,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.hadoop.hive.cli.CliDriver;
 import org.apache.hadoop.hive.ql.metadata.HiveException;
 
@@ -29,13 +30,13 @@ public class HiveExecutor {
         String currentPath = Paths.get(".").toAbsolutePath().normalize().toString();
         ArrayList<String> hiveCliArgsMetastore = new ArrayList<String>();
         hiveCliArgsMetastore.add("--hiveconf");
-        hiveCliArgsMetastore.add("hive.metastore.warehouse.dir=file://"+currentPath+"/tmp/warehouse");
+        hiveCliArgsMetastore.add("hive.metastore.warehouse.dir=file:///"+FilenameUtils.separatorsToUnix(currentPath)+"/tmp/warehouse");
         
         hiveCliArgsMetastore.add("--hiveconf");
         hiveCliArgsMetastore.add("javax.jdo.option.ConnectionURL=jdbc:derby:;databaseName=tmp/metastore_db;create=true");
         
         hiveCliArgsMetastore.add("--hiveconf");
-        hiveCliArgsMetastore.add("fs.default.name=file://"+currentPath+"/tmp");
+        hiveCliArgsMetastore.add("fs.default.name=file:///"+FilenameUtils.separatorsToUnix(currentPath)+"/tmp");
         //file://${user.dir}/
         return hiveCliArgsMetastore.toArray(new String[0]);
     }
