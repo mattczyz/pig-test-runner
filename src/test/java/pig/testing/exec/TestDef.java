@@ -15,7 +15,8 @@ public class TestDef {
 	
 	static class TestClass {
 	    Properties args;
-	    String name;
+	    String name = "DirContentEqual";
+	    String id;
         public Properties getArgs() {
             return args;
         }
@@ -27,6 +28,12 @@ public class TestDef {
         }
         public void setName(String name) {
             this.name = name;
+        }
+        public String getId() {
+            return id;
+        }
+        public void setId(String id) {
+            this.id = id;
         }
         
 	}

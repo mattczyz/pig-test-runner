@@ -16,6 +16,7 @@ import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,10 +47,24 @@ public class ParameterizedTests {
         while(testDefs.hasNext()){
             TestDef properties = mapper.readValue(testDefs.next(), TestDef.class);
 
-            testProperties.add(new Object[] { properties.getId(),
-                    properties.getFile(), properties.getArgs(),
-                    properties.getTests(), properties.getHiveCli() });
-
+            if(properties.getTests().isEmpty()){
+                testProperties.add(new Object[] { properties.getId(),
+                        properties.getFile(), properties.getArgs(), properties.getHiveCli(), null });
+            } else {
+                int i = 0;
+                for(TestClass test : properties.getTests()){
+                    String id;
+                    if(properties.getTests().size() <= 1){
+                        id = properties.getId() +  (test.id != null ? " - " + test.id : "");
+                    } else {
+                        id = properties.getId() + " - " + (test.id == null ? i : test.id);
+                            
+                    }
+                    testProperties.add(new Object[] { id,
+                            properties.getFile(), properties.getArgs(), properties.getHiveCli(), test });
+                    i++;
+                }
+            }
         }
 
         return testProperties;
@@ -58,47 +73,47 @@ public class ParameterizedTests {
     private String id;
     private String file;
     private Properties args;
-    private ArrayList<TestClass> tests;
     private ArrayList<String[]> hiveCli;
+    private TestClass test;
     
     public static boolean initOnly = false;
     
-    public ParameterizedTests(String id, String file, Properties args,
-            ArrayList<TestClass> tests, ArrayList<String[]> hiveCli) {
+    public ParameterizedTests(String id, String file, Properties args, ArrayList<String[]> hiveCli, TestClass test) {
 
         this.id = id;
         this.file = file;
         this.args = args;
-        this.tests = tests;
+        this.test = test;
         this.hiveCli = hiveCli;
     }
-        
+     
+    @Before
+    public void setUp() throws IOException, ParseException, URISyntaxException, HiveException {
+      org.junit.Assume.assumeFalse("Initialization only run: " + initOnly, initOnly);
+      // execute hive cli
+      HiveExecutor.cleanup();
+      for(String[] hiveCliArgs:hiveCli){
+          if(System.getProperty("hive.metastore.uris") == null){
+              String[] metastoreArgs = (String[]) ArrayUtils.addAll(hiveCliArgs, HiveExecutor.getMetastoreConfig());
+              HiveExecutor.execHive(metastoreArgs);
+          } else {
+              HiveExecutor.execHive(hiveCliArgs);
+          }
+      }
+      
+      // execute pig
+      PigExecutor.execPigScript(this.id, this.file, this.args);
+
+    }
+
     @Test
-    public void test() throws IOException, ParseException, URISyntaxException, HiveException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+    public void test() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
         org.junit.Assume.assumeFalse("Initialization only run: " + initOnly, initOnly);
         
-        // execute hive cli
-        HiveExecutor.cleanup();
-        for(String[] hiveCliArgs:hiveCli){
-            if(System.getProperty("hive.metastore.uris") == null){
-                String[] metastoreArgs = (String[]) ArrayUtils.addAll(hiveCliArgs, HiveExecutor.getMetastoreConfig());
-                HiveExecutor.execHive(metastoreArgs);
-            } else {
-                HiveExecutor.execHive(hiveCliArgs);
-            }
-        }
-        
-        // execute pig
-        PigExecutor.execPigScript(this.id, this.file, this.args);
-
-        
-        // test with expected
-        for (TestClass test : tests) {
+        if(test != null){
             ResultValidator testExecutor = ResultValidatorFactory.get(test.getName());
-            
             testExecutor.setArgs(test.getArgs());
-            testExecutor.validate();
-
+            testExecutor.validate(); 
         }
     }
 }
