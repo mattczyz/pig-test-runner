@@ -12,6 +12,7 @@ public class TestDef {
 	private Properties args = new Properties();
 	private ArrayList<TestClass> tests = new ArrayList<TestClass>();
 	private ArrayList<String[]> hiveCli = new ArrayList<String[]>();
+	private String type = "PIG";
 	
 	static class TestClass {
 	    Properties args;
@@ -76,6 +77,14 @@ public class TestDef {
 
     public void setTests(ArrayList<TestClass> tests) {
         this.tests = tests;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
 	

@@ -9,10 +9,9 @@ import java.util.Map.Entry;
 import org.apache.pig.pigunit.PigTest;
 import org.apache.pig.tools.parameters.ParseException;
 
-public class PigExecutor {
+public class PigExecutor implements AppExecutor{
 
-    public static void execPigScript(String id, String file, Properties props)
-            throws IOException, ParseException {
+    public void execScript(String file, Properties props) throws IOException, ParseException {
 
         PigTest test = new PigTest(file, propsToArray(props));
         test.unoverride("STORE");

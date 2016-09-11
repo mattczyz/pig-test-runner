@@ -19,8 +19,36 @@
     
 },
 {
+    "id": "word-count-hcat",
+    "file": "examples/word_count_hcat/word_count_hive.pig",
+    "args": 
+    {
+        "input_table": "mydb.words",
+        "output": "examples/word_count_hcat/output"
+    }    ,
+    "hiveCli": [
+        ["-e", "dfs -rm -r -f examples/word_count_hcat/output"],
+        ["-e", "CREATE DATABASE mydb;"],
+        [
+         "-f", "examples/word_count_hcat/words.hql",
+         "--hiveconf", "words_path=examples/word_count_hcat/input"
+        ]
+    ],
+    "tests": [
+        {
+            "name": "DirContentEqual",
+            "args": 
+            {
+                "output":"examples/word_count_hcat/output",
+                "expected": "examples/word_count_hcat/expected"
+            }
+        }
+    ]
+},
+{
     "id": "word-count-hive",
-    "file": "examples/word_count_hive/word_count_hive.pig",
+    "file": "examples/word_count_hive/word_count_hive.hql",
+    "type": "HIVE",
     "args": 
     {
         "input_table": "mydb.words",

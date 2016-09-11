@@ -1,7 +1,7 @@
 package pig.testing.exec;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
+
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -9,9 +9,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Properties;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.hadoop.hive.ql.metadata.HiveException;
-import org.apache.pig.tools.parameters.ParseException;
+
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
@@ -49,7 +48,7 @@ public class ParameterizedTests {
 
             if(properties.getTests().isEmpty()){
                 testProperties.add(new Object[] { properties.getId(),
-                        properties.getFile(), properties.getArgs(), properties.getHiveCli(), null });
+                        properties.getFile(), properties.getArgs(), properties.getHiveCli(), null, properties.getType() });
             } else {
                 int i = 0;
                 for(TestClass test : properties.getTests()){
@@ -61,7 +60,7 @@ public class ParameterizedTests {
                             
                     }
                     testProperties.add(new Object[] { id,
-                            properties.getFile(), properties.getArgs(), properties.getHiveCli(), test });
+                            properties.getFile(), properties.getArgs(), properties.getHiveCli(), test, properties.getType() });
                     i++;
                 }
             }
@@ -69,41 +68,52 @@ public class ParameterizedTests {
 
         return testProperties;
     }
-
+    
     private String id;
     private String file;
     private Properties args;
     private ArrayList<String[]> hiveCli;
     private TestClass test;
+    private String type;
     
     public static boolean initOnly = false;
     
-    public ParameterizedTests(String id, String file, Properties args, ArrayList<String[]> hiveCli, TestClass test) {
-
+    public ParameterizedTests(String id, String file, Properties args, ArrayList<String[]> hiveCli, TestClass test, String type) {
         this.id = id;
         this.file = file;
         this.args = args;
         this.test = test;
         this.hiveCli = hiveCli;
+        this.type = type;
+
     }
      
     @Before
-    public void setUp() throws IOException, ParseException, URISyntaxException, HiveException {
-      org.junit.Assume.assumeFalse("Initialization only run: " + initOnly, initOnly);
-      // execute hive cli
-      HiveExecutor.cleanup();
-      for(String[] hiveCliArgs:hiveCli){
-          if(System.getProperty("hive.metastore.uris") == null){
-              String[] metastoreArgs = (String[]) ArrayUtils.addAll(hiveCliArgs, HiveExecutor.getMetastoreConfig());
-              HiveExecutor.execHive(metastoreArgs);
-          } else {
-              HiveExecutor.execHive(hiveCliArgs);
-          }
-      }
-      
-      // execute pig
-      PigExecutor.execPigScript(this.id, this.file, this.args);
+    public void setUp() throws Exception {
+        org.junit.Assume.assumeFalse("Initialization only run: " + initOnly, initOnly);
+        // execute hive cli
+        HiveExecutor hiveExecutor = new HiveExecutor();
 
+        if(System.getProperty("hive.metastore.uris") == null){
+            hiveExecutor.cleanup(this.id);
+            hiveExecutor.setMetastoreConfig(this.id);
+        }
+
+        for(String[] hiveCliArgs:hiveCli){
+            hiveExecutor.execHive(hiveCliArgs);
+        }
+      
+        // execute script
+        switch(this.type){
+              case "PIG": 
+                  AppExecutor exec = new PigExecutor();
+                  exec.execScript(this.file, this.args);
+                  break;
+              case "HIVE": 
+                  hiveExecutor.execScript(this.file, this.args);
+                  break;
+        }
+        hiveExecutor.cleanup(this.id);
     }
 
     @Test
