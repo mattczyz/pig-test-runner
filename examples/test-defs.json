@@ -72,5 +72,25 @@
             }
         }
     ]
+},
+{
+    "id": "word-count-gz",
+    "file": "examples/word_count_gz/word_count.pig",
+    "args": 
+    {
+        "input": "examples/word_count_gz/input",
+        "output": "examples/word_count_gz/output"
+    },
+    "tests": [
+        {
+            "args": 
+            {
+                "output":"examples/word_count_gz/output",
+                "expected": "examples/word_count_gz/expected",
+                "compressor": "GZ"
+            }
+        }
+    ]
+    
 }
 ]
