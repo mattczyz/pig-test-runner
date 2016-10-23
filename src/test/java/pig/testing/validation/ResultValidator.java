@@ -5,4 +5,5 @@ import java.util.Properties;
 public interface ResultValidator {
     void setArgs(Properties args);
     void validate() throws AssertionError;
+    void setId(String id);
 }

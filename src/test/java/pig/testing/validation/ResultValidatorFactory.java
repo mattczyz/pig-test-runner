@@ -7,7 +7,7 @@ public class ResultValidatorFactory {
         Class<?> testExecutor;
    
         if(executorClass == null)
-            executorClass = "DirContentEqual";
+            executorClass = DirContentValidator.class.getSimpleName();
         
         if(isClass("pig.testing.validation." + executorClass)){
             testExecutor = Class.forName("pig.testing.validation." + executorClass);

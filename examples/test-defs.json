@@ -36,7 +36,7 @@
     ],
     "tests": [
         {
-            "name": "DirContentEqual",
+            "name": "DirContentValidator",
             "args": 
             {
                 "output":"examples/word_count_hcat/output",
@@ -64,11 +64,45 @@
     ],
     "tests": [
         {
-            "name": "DirContentEqual",
+            "name": "DirContentValidator",
             "args": 
             {
                 "output":"examples/word_count_hive/output",
                 "expected": "examples/word_count_hive/expected"
+            }
+        }
+    ]
+},
+{
+    "id": "word-count-hive-with-query",
+    "file": "examples/word_count_hive_with_query/word_count_hive_with_query.hql",
+    "type": "HIVE",
+    "args": 
+    {
+        "input_table": "mydb.words",
+        "output_table": "mydb.word_count"
+    }    ,
+    "hiveCli": [
+        ["-e", "dfs -rm -r -f examples/word_count_hive_with_query/output"],
+        ["-e", "dfs -rm -r -f examples/word_count_hive_with_query/output_count"],
+        ["-e", "CREATE DATABASE mydb;"],
+        [
+         "-f", "examples/word_count_hive_with_query/words.hql",
+         "--hiveconf", "words_path=examples/word_count_hive_with_query/input"
+        ],
+        [
+         "-f", "examples/word_count_hive_with_query/word_count.hql",
+         "--hiveconf", "word_count_path=examples/word_count_hive_with_query/output"
+        ]
+    ],
+    "tests": [
+        {
+            "name": "HiveQueryValidator",
+            "args": 
+            {
+                "output":"examples/word_count_hive_with_query/output_count",
+                "output_query":"SELECT * FROM mydb.word_count ORDER BY count DESC;",
+                "expected": "examples/word_count_hive_with_query/expected_count"
             }
         }
     ]

@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Properties;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+
+import pig.testing.validation.DirContentValidator;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TestDef {
 
@@ -16,7 +18,7 @@ public class TestDef {
 	
 	static class TestClass {
 	    Properties args;
-	    String name = "DirContentEqual";
+	    String name = DirContentValidator.class.getSimpleName();
 	    String id;
         public Properties getArgs() {
             return args;

@@ -15,6 +15,7 @@ import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -87,13 +88,14 @@ public class ParameterizedTests {
         this.type = type;
 
     }
-     
+    
+    HiveExecutor hiveExecutor = new HiveExecutor();
+    
     @Before
     public void setUp() throws Exception {
         org.junit.Assume.assumeFalse("Initialization only run: " + initOnly, initOnly);
         // execute hive cli
-        HiveExecutor hiveExecutor = new HiveExecutor();
-
+        
         if(System.getProperty("hive.metastore.uris") == null){
             hiveExecutor.cleanup(this.id);
             hiveExecutor.setMetastoreConfig(this.id);
@@ -113,15 +115,21 @@ public class ParameterizedTests {
                   hiveExecutor.execScript(this.file, this.args);
                   break;
         }
-        hiveExecutor.cleanup(this.id);
+        
     }
 
+    @After
+    public void cleanup() throws Exception {
+        hiveExecutor.cleanup(this.id);
+    }
+    
     @Test
     public void test() throws InstantiationException, IllegalAccessException, ClassNotFoundException {
         org.junit.Assume.assumeFalse("Initialization only run: " + initOnly, initOnly);
         
         if(test != null){
             ResultValidator testExecutor = ResultValidatorFactory.get(test.getName());
+            testExecutor.setId(this.id);
             testExecutor.setArgs(test.getArgs());
             testExecutor.validate(); 
         }

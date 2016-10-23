@@ -9,7 +9,7 @@ import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.Properties;
 
-public class DirContentEqual implements ResultValidator {
+public class DirContentValidator implements ResultValidator {
 
     Properties args;
 
@@ -91,5 +91,11 @@ public class DirContentEqual implements ResultValidator {
         } catch (IOException e) {
             throw new AssertionError("IOExeption: ", e);
         }
+    }
+
+    @Override
+    public void setId(String id) {
+        // TODO Auto-generated method stub
+        
     }
 }
